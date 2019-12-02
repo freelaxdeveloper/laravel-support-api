@@ -20,14 +20,14 @@ class Chat extends AbstractModel
      * Property
      */
     public const ID = 'id';
-    public const CLIENT_IP = 'client_ip';
+    public const CLIENT_ID = 'client_id';
     public const SUPPORT_ID = 'support_id';
 
     /**
      * @var array
      */
     protected $fillable = [
-        self::CLIENT_IP,
+        self::CLIENT_ID,
         self::SUPPORT_ID,
     ];
 

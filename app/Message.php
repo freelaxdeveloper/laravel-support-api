@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Events\MessageUpdateEvent;
 use App\Services\ChatService;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class Message
  * @property array file
+ * @property int id
+ * @property string message
  * @package App
  */
 class Message extends AbstractModel
@@ -21,14 +24,15 @@ class Message extends AbstractModel
     public const ID = 'id';
     public const MESSAGE = 'message';
     public const CHAT_ID = 'chat_id';
-    public const USER_ID = 'user_id';
+    public const GUEST_ID = 'guest_id';
     public const META = 'meta';
     public const FILE = 'file';
     public const TYPE = 'type';
-    public const IP_ADDRESS = 'ip_address';
     public const IS_READ = 'is_read';
     public const IS_LIKE = 'is_like';
     public const IS_EDITED = 'is_edited';
+
+    public const GUEST = 'guest';
 
     /**
      * Accessor
@@ -42,10 +46,10 @@ class Message extends AbstractModel
       self::TYPE,
       self::MESSAGE,
       self::CHAT_ID,
-      self::USER_ID,
+      self::GUEST_ID,
       self::META,
       self::FILE,
-      self::IP_ADDRESS,
+//      self::IP_ADDRESS,
     ];
 
     /**
@@ -70,17 +74,18 @@ class Message extends AbstractModel
      */
     public function getAuthorAttribute()
     {
-        $isUserId = $this->attributes[self::USER_ID] ?? false;
+        $id = customer()->guest->id ?? null;
+        $isMe = $this->attributes[self::GUEST_ID] === $id;
 
-        return !(bool) $isUserId ? 'me' : 'support';
+        return $isMe ? 'me' : 'support';
     }
 
     /**
      * @return BelongsTo
      */
-    public function user()
+    public function guest()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Guest::class);
     }
 
     /**
@@ -104,6 +109,7 @@ class Message extends AbstractModel
         {
             if($model->isDirty(self::MESSAGE)) {
                 $model->{self::IS_EDITED} = true;
+                MessageUpdateEvent::dispatch($model);
             }
         });
 

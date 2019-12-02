@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\{Message, Services\FileService};
+use App\{Events\MessageEvent, Events\MessageRemoveEvent, Message, Services\FileService};
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\Message as MessageResource;
@@ -20,6 +20,8 @@ class MessageController extends Controller
         if (!$message->delete()) {
             return $this-fail();
         }
+
+        MessageRemoveEvent::dispatch($message->id);
 
         return $this->success([
             Message::TYPE => 'system',
@@ -54,6 +56,10 @@ class MessageController extends Controller
      */
     public function uploadFile(Message $message, Request $request)
     {
+        validator($request->all(), [
+            'file' => 'required|max:10000',
+        ])->validate();
+
         $file = $request->file('file');
 
         $message->file = FileService::save($file);
@@ -77,10 +83,13 @@ class MessageController extends Controller
         $data = [];
         $data[Message::MESSAGE] = $request->input('data.text') ?? $request->input('data.emoji');
         $data[Message::TYPE] = $request->input(Message::TYPE);
+        $data[Message::GUEST_ID] = customer()->guest->id;
 
         $message = Message::create($data);
 
-        return $this->success($message);
+        MessageEvent::dispatch($message->id);
+
+        return $this->success(new MessageResource($message));
     }
 
     /**

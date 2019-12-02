@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIpAddressColumnToChatsTable extends Migration
+class AddNameColumnToGuestsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddIpAddressColumnToChatsTable extends Migration
      */
     public function up()
     {
-        Schema::table('chats', function (Blueprint $table) {
-            $table->dropForeign(['client_id']);
+        Schema::table('guests', function (Blueprint $table) {
+            $table->string('name')->after('id')->nullable();
         });
     }
 
@@ -25,9 +25,8 @@ class AddIpAddressColumnToChatsTable extends Migration
      */
     public function down()
     {
-        Schema::table('chats', function (Blueprint $table) {
-            $table->foreign('client_id')->references('id')->on('users')
-                ->onDelete('cascade');
+        Schema::table('guests', function (Blueprint $table) {
+            $table->dropColumn('name');
         });
     }
 }

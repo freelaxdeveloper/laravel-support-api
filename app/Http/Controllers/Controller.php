@@ -55,20 +55,18 @@ class Controller extends BaseController
     }
 
     /**
-     * @return int|null
+     * @return int
      */
-    public function userId()
+    public function userId(): int
     {
-        Auth::loginUsingId(1, true);
-
-       return Auth::id();
+       return customer()->id;
     }
     /**
      * @return string
      */
-    public function userIp()
+    public function userIp(): string
     {
-       return $_SERVER['REMOTE_ADDR'];
+        return customer()->ip;
     }
 
     /**

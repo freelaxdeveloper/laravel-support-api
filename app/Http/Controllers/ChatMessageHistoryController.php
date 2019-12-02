@@ -11,14 +11,14 @@ class ChatMessageHistoryController extends Controller
 {
     public function index()
     {
-        return $this->success([$this->userId()]);
+        $chat = ChatService::startChat()->loadMissing('messages.guest');
+
+        return $this->success(new ChatResource($chat));
     }
 
-    public function show()
+    public function show(Chat $chat)
     {
-        $chat = ChatService::startChat()->loadMissing('messages.user')
-            ->where(Chat::CLIENT_IP, $this->userIp())
-            ->first();
+        $chat->loadMissing('messages.guest');
 
         return $this->success(new ChatResource($chat));
     }

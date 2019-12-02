@@ -34,6 +34,7 @@ class Message extends JsonResource
                 'suggestions' => [],
                 MessageModel::FILE => (new FileService($this->{MessageModel::FILE}))->toArray(),
             ],
+            'user' => $this->{MessageModel::GUEST},
             MessageModel::CREATED_AT => $this->{MessageModel::CREATED_AT},
             MessageModel::UPDATED_AT => $this->{MessageModel::UPDATED_AT},
         ];

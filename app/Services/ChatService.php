@@ -17,7 +17,7 @@ class ChatService
     public static function startChat()
     {
         return Chat::firstOrCreate([
-           Chat::CLIENT_IP => $_SERVER['REMOTE_ADDR'],
+           Chat::CLIENT_ID => customer()->id,
         ]);
     }
 }

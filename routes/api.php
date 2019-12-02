@@ -17,11 +17,20 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/messageHistory', 'ChatMessageHistoryController@index');
-Route::get('/messageHistory/{support}', 'ChatMessageHistoryController@show');
+Route::get('/token', 'UserController@token');
+Route::get('/myinfo', 'UserController@myinfo');
 
-Route::delete('/message/{message}', 'MessageController@destroy');
-Route::post('/message/{message}/file', 'MessageController@uploadFile');
-Route::patch('/message/{message}/like', 'MessageController@like');
-Route::put('/message/{message}', 'MessageController@update');
-Route::post('/message', 'MessageController@store');
+Route::prefix('messageHistory')->group(function () {
+    Route::get('/', 'ChatMessageHistoryController@index');
+    Route::get('/{chat}', 'ChatMessageHistoryController@show');
+});
+
+Route::prefix('message')->group(function () {
+    Route::prefix('{message}')->group(function () {
+        Route::delete('/', 'MessageController@destroy');
+        Route::post('/file', 'MessageController@uploadFile');
+        Route::patch('/like', 'MessageController@like');
+        Route::put('/', 'MessageController@update');
+    });
+    Route::post('/', 'MessageController@store');
+});
