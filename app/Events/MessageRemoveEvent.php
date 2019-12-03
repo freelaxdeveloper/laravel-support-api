@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Chat;
 use App\Message;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -16,15 +17,21 @@ class MessageRemoveEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message_id;
+    /**
+     * @var Chat
+     */
+    private $chat;
 
     /**
      * Create a new event instance.
      *
      * @param int $message_id
+     * @param Chat $chat
      */
-    public function __construct(int $message_id)
+    public function __construct(int $message_id, Chat $chat)
     {
         $this->message_id = $message_id;
+        $this->chat = $chat;
 
         $this->dontBroadcastToCurrentUser();
     }
@@ -36,7 +43,7 @@ class MessageRemoveEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('chat');
+        return new Channel("chat.{$this->chat->slug}");
     }
 
 

@@ -118,7 +118,7 @@ class Message extends AbstractModel
         {
             if($model->isDirty(self::MESSAGE)) {
                 $model->{self::IS_EDITED} = true;
-                MessageUpdateEvent::dispatch($model);
+                MessageUpdateEvent::dispatch($model, $model->chat);
             }
         });
 

@@ -21,7 +21,7 @@ class MessageController extends Controller
             return $this-fail();
         }
 
-        MessageRemoveEvent::dispatch($message->id);
+        MessageRemoveEvent::dispatch($message->id, $message->chat);
 
         return $this->success([
             Message::TYPE => 'system',

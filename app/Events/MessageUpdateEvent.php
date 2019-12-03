@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Chat;
 use App\Message;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -16,15 +17,20 @@ class MessageUpdateEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
+    /**
+     * @var Chat
+     */
+    private $chat;
 
     /**
      * Create a new event instance.
      *
      * @param Message $message
      */
-    public function __construct($message)
+    public function __construct($message, Chat $chat)
     {
         $this->message = $message;
+        $this->chat = $chat;
 
         $this->dontBroadcastToCurrentUser();
     }
@@ -36,7 +42,7 @@ class MessageUpdateEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('chat');
+        return new Channel("chat.{$this->chat->slug}");
     }
 
     /**
