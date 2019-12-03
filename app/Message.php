@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property array file
  * @property int id
  * @property string message
+ * @property BelongsTo chat
  * @package App
  */
 class Message extends AbstractModel
@@ -91,6 +92,14 @@ class Message extends AbstractModel
     /**
      * @return BelongsTo
      */
+    public function chat()
+    {
+        return $this->belongsTo(Chat::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
     public function suggestions()
     {
         return $this->belongsTo(Suggestion::class);
@@ -115,7 +124,7 @@ class Message extends AbstractModel
 
         static::creating(function($model)
         {
-            $model->{self::CHAT_ID} = ChatService::startChat()->id;
+            $model->{self::CHAT_ID} = $model->{self::CHAT_ID} ?? ChatService::startChat()->id;
         });
     }
 }

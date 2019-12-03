@@ -13,16 +13,22 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+//Route::middleware('auth:api')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
+
+Route::get('/user', 'UserController@myinfo');
 
 Route::get('/token', 'UserController@token');
 Route::get('/myinfo', 'UserController@myinfo');
 
-Route::prefix('messageHistory')->group(function () {
-    Route::get('/', 'ChatMessageHistoryController@index');
-    Route::get('/{chat}', 'ChatMessageHistoryController@show');
+Route::prefix('chat')->group(function () {
+    Route::get('/', 'ChatController@index');
+
+    Route::prefix('/{chat}')->group(function () {
+        Route::get('/', 'ChatController@show');
+        Route::post('/message', 'MessageController@store');
+    });
 });
 
 Route::prefix('message')->group(function () {

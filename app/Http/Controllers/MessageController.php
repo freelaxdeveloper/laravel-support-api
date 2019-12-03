@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\{Events\MessageEvent, Events\MessageRemoveEvent, Message, Services\FileService};
+use App\{Chat, Enum\MessageTypes, Events\MessageEvent, Events\MessageRemoveEvent, Message, Services\FileService};
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\Message as MessageResource;
@@ -65,14 +65,19 @@ class MessageController extends Controller
         $message->file = FileService::save($file);
         $message->save();
 
-        return $this->success(new MessageResource($message));
+        $messageResource = new MessageResource($message);
+
+        MessageEvent::dispatch($messageResource, $message->chat);
+
+        return $this->success($messageResource);
     }
 
     /**
+     * @param Chat $chat
      * @param Request $request
      * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(Chat $chat, Request $request)
     {
         validator($request->all(), [
             'data.text' => 'required_without_all:data.emoji,data.file|string',
@@ -85,11 +90,15 @@ class MessageController extends Controller
         $data[Message::TYPE] = $request->input(Message::TYPE);
         $data[Message::GUEST_ID] = customer()->guest->id;
 
-        $message = Message::create($data);
+        $message = $chat->messages()->create($data);
 
-        MessageEvent::dispatch($message->id);
+        $messageResource = new MessageResource($message);
 
-        return $this->success(new MessageResource($message));
+        if ($data[Message::TYPE] != MessageTypes::FILE) {
+            MessageEvent::dispatch($messageResource, $chat);
+        }
+
+        return $this->success($messageResource);
     }
 
     /**

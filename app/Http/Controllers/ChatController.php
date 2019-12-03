@@ -2,13 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\{Chat, User, Message};
+use App\Chat;
 use App\Http\Resources\Chat as ChatResource;
 use App\Services\ChatService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-class ChatMessageHistoryController extends Controller
+/**
+ * Class ChatController
+ * @package App\Http\Controllers
+ */
+class ChatController extends Controller
 {
+    /**
+     * @return JsonResponse
+     */
     public function index()
     {
         $chat = ChatService::startChat()->loadMissing('messages.guest');
@@ -16,6 +24,10 @@ class ChatMessageHistoryController extends Controller
         return $this->success(new ChatResource($chat));
     }
 
+    /**
+     * @param Chat $chat
+     * @return JsonResponse
+     */
     public function show(Chat $chat)
     {
         $chat->loadMissing('messages.guest');

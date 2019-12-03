@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int id
  * @property int client_id
  * @property int support_id
+ * @property string slug
  * @package App
  */
 class Chat extends AbstractModel
@@ -22,6 +23,7 @@ class Chat extends AbstractModel
     public const ID = 'id';
     public const CLIENT_ID = 'client_id';
     public const SUPPORT_ID = 'support_id';
+    public const SLUG = 'slug';
 
     /**
      * @var array
@@ -29,6 +31,7 @@ class Chat extends AbstractModel
     protected $fillable = [
         self::CLIENT_ID,
         self::SUPPORT_ID,
+        self::SLUG,
     ];
 
     /**
@@ -42,5 +45,22 @@ class Chat extends AbstractModel
     public function messages()
     {
         return $this->hasMany(Message::class);
+    }
+
+    /**
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return self::SLUG;
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            $model->{self::SLUG} = $model->{self::SLUG} ?? sha1(microtime());
+        });
     }
 }

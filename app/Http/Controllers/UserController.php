@@ -20,6 +20,6 @@ class UserController extends Controller
      */
     public function myinfo()
     {
-        return $this->success(customer()->toArray());
+        return $this->success(customer()->guest);
     }
 }

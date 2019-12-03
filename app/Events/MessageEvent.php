@@ -2,6 +2,8 @@
 
 namespace App\Events;
 
+use App\Chat;
+use App\Http\Resources\Message as MessageResource;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -17,18 +19,18 @@ class MessageEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
-    public $token;
+    public $chat;
 
     /**
      * Create a new event instance.
      *
-     * @param int $message_id
-     * @param string $token
+     * @param MessageResource $messageResource
+     * @param Chat $chat
      */
-    public function __construct(int $message_id, string $token = 'all')
+    public function __construct(MessageResource $messageResource, Chat $chat)
     {
-        $this->message = new ResourceMessage(ModelMessage::find($message_id));
-        $this->token = $token;
+        $this->message = $messageResource;
+        $this->chat = $chat;
 
         $this->dontBroadcastToCurrentUser();
     }
@@ -40,6 +42,6 @@ class MessageEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('chat');
+        return new Channel("chat.{$this->chat->slug}");
     }
 }
